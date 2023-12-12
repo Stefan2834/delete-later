@@ -4,7 +4,7 @@
 		https://www.springframework.org/schema/beans/spring-beans.xsd
         ">
 
-    <bean id="myResponseBean2" class="com.example.demo.MyResponse">
+    <bean id="myResponseBean2" class="com.example.demo.config.MyResponse">
         <constructor-arg value="mircea"/>
         <constructor-arg value="false"/>
     </bean>

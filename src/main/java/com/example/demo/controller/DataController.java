@@ -11,6 +11,7 @@ import java.util.List;
 
 
 @RestController
+@RequestMapping("/data")
 public class DataController {
 
     private final MyEntityInterface myEntityRepository;
@@ -22,27 +23,22 @@ public class DataController {
 
     private static class Data {
         public String data;
-
         public String newData;
-
     }
 
-    @GetMapping("/data")
+    @GetMapping
     ResponseEntity<Response<?>> getJson() {
-        List<MyEntity> result = (List<MyEntity>) myEntityRepository.findAll();
+        List<MyEntity> result = myEntityRepository.findAll();
         Response<List<MyEntity>> response = new Response<>(true, result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @PostMapping("/data")
+    @PostMapping
     ResponseEntity<Response<?>> postJson(@RequestBody Data searchData) {
-        List<MyEntity> result = (List<MyEntity>) myEntityRepository.findAll();
-
-        boolean containsValue = result.stream()
-                .anyMatch(entity -> entity.data.equals(searchData.data));
+        MyEntity containsValue = myEntityRepository.findByData(searchData.data);
 
 
-        if (!containsValue) {
+        if (containsValue == null) {
             MyEntity newData = new MyEntity();
             newData.data = searchData.data;
             myEntityRepository.save(newData);
@@ -55,7 +51,7 @@ public class DataController {
         }
     }
 
-    @PutMapping("/data")
+    @PutMapping
     ResponseEntity<Response<?>> putJson(@RequestBody Data searchData) {
         MyEntity result = myEntityRepository.findByData(searchData.data);
 
@@ -70,7 +66,7 @@ public class DataController {
         }
     }
 
-    @DeleteMapping("/data")
+    @DeleteMapping
     ResponseEntity<Response<?>> deleteJson(@RequestBody Data searchData) {
         MyEntity result = myEntityRepository.findByData(searchData.data);
         if (result != null) {
