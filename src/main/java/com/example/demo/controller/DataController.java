@@ -1,7 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.mongo.MyEntity;
-import com.example.demo.mongo.MyEntityInterface;
+import com.example.demo.mongo.MyEntityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,11 +14,11 @@ import java.util.List;
 @RequestMapping("/data")
 public class DataController {
 
-    private final MyEntityInterface myEntityRepository;
+    private final MyEntityService myEntityService;
 
     @Autowired
-    public DataController(MyEntityInterface myEntityRepository) {
-        this.myEntityRepository = myEntityRepository;
+    public DataController(MyEntityService myEntityService) {
+        this.myEntityService = myEntityService;
     }
 
     private static class Data {
@@ -28,20 +28,20 @@ public class DataController {
 
     @GetMapping
     ResponseEntity<Response<?>> getJson() {
-        List<MyEntity> result = myEntityRepository.findAll();
+        List<MyEntity> result = myEntityService.findAll();
         Response<List<MyEntity>> response = new Response<>(true, result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PostMapping
     ResponseEntity<Response<?>> postJson(@RequestBody Data searchData) {
-        MyEntity containsValue = myEntityRepository.findByData(searchData.data);
+        MyEntity containsValue = myEntityService.findByData(searchData.data);
 
 
         if (containsValue == null) {
             MyEntity newData = new MyEntity();
             newData.data = searchData.data;
-            myEntityRepository.save(newData);
+            myEntityService.save(newData);
             Response<String> response = new Response<>(true, "Data added successfully");
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } else {
@@ -53,11 +53,11 @@ public class DataController {
 
     @PutMapping
     ResponseEntity<Response<?>> putJson(@RequestBody Data searchData) {
-        MyEntity result = myEntityRepository.findByData(searchData.data);
+        MyEntity result = myEntityService.findByData(searchData.data);
 
         if (result != null && searchData.newData != null) {
             result.data = searchData.newData;
-            myEntityRepository.save(result);
+            myEntityService.save(result);
             Response<String> response = new Response<>(true, searchData.data + " changed successfully");
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } else {
@@ -68,9 +68,9 @@ public class DataController {
 
     @DeleteMapping
     ResponseEntity<Response<?>> deleteJson(@RequestBody Data searchData) {
-        MyEntity result = myEntityRepository.findByData(searchData.data);
+        MyEntity result = myEntityService.findByData(searchData.data);
         if (result != null) {
-            myEntityRepository.delete(result);
+            myEntityService.delete(result);
             Response<String> response = new Response<>(true, searchData.data + " deleted successfully");
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } else {
@@ -79,8 +79,7 @@ public class DataController {
         }
     }
 
-
+    record Response<T>(boolean success, T data) {
+    }
 }
 
-record Response<T>(boolean success, T data) {
-}
